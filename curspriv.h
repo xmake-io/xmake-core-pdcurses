@@ -1,3 +1,5 @@
+/* Public Domain Curses */
+
 /* Private definitions and declarations for use within PDCurses.
    These should generally not be referenced by applications. */
 
@@ -8,16 +10,22 @@
 #include <curses.h>
 
 #if defined(__TURBOC__) || defined(__EMX__) || defined(__DJGPP__) || \
-    defined(PDC_99) || defined(__WATCOMC__)
+    defined(__CYGWIN32__) || defined(__MINGW32__) || \
+    defined(__WATCOMC__) || defined(__PACIFIC__)
 # ifndef HAVE_VSSCANF
 #  define HAVE_VSSCANF       /* have vsscanf() */
 # endif
 #endif
 
-#if defined(PDC_99) || defined(__WATCOMC__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__) || \
+    defined(__LCC__) || defined(__WATCOMC__)
 # ifndef HAVE_VSNPRINTF
 #  define HAVE_VSNPRINTF     /* have vsnprintf() */
 # endif
+#endif
+
+#if defined(_MSC_VER) && defined(_WIN32) && !defined(_CRT_SECURE_NO_DEPRECATE)
+# define _CRT_SECURE_NO_DEPRECATE 1   /* kill nonsense warnings */
 #endif
 
 /*----------------------------------------------------------------------*/
@@ -43,7 +51,7 @@ typedef struct           /* structure for ripped off lines */
 #define _DLCHAR    0x15  /* Delete Line char (^U) */
 
 extern WINDOW *pdc_lastscr;
-extern FILE *pdc_dbfp;   /* tracing file pointer (NULL = off) */
+extern bool pdc_trace_on;   /* tracing flag */
 extern bool pdc_color_started;
 extern unsigned long pdc_key_modifiers;
 extern MOUSE_STATUS pdc_mouse_status;
@@ -63,7 +71,6 @@ int     PDC_get_cursor_mode(void);
 int     PDC_get_key(void);
 int     PDC_get_rows(void);
 void    PDC_gotoyx(int, int);
-bool    PDC_has_mouse(void);
 int     PDC_init_color(short, short, short, short);
 void    PDC_init_pair(short, short, short);
 int     PDC_modifiers_set(void);
@@ -99,14 +106,18 @@ size_t  PDC_wcstombs(char *, const wchar_t *, size_t);
 #endif
 
 #ifdef PDCDEBUG
-# define PDC_LOG(x) if (pdc_dbfp) PDC_debug x
+# define PDC_LOG(x) if (pdc_trace_on) PDC_debug x
 #else
 # define PDC_LOG(x)
 #endif
 
 /* Internal macros for attributes */
 
-#define PDC_COLOR_PAIRS 256
+#ifdef CHTYPE_LONG
+# define PDC_COLOR_PAIRS 256
+#else
+# define PDC_COLOR_PAIRS  32
+#endif
 
 #ifndef max
 # define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -120,6 +131,4 @@ size_t  PDC_wcstombs(char *, const wchar_t *, size_t);
 #define PDC_CLICK_PERIOD 150  /* time to wait for a click, if
                                  not set by mouseinterval() */
 
-#define PDC_MAXCOL 768        /* maximum possible COLORS; may be less */
-
-#endif /* __CURSES_INTERNALS__ */
+#endif /* __CURSES_INTERNALS__*/

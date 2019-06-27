@@ -1,4 +1,4 @@
-/* PDCurses */
+/* Public Domain Curses */
 
 #include <curspriv.h>
 
@@ -18,42 +18,43 @@ scr_dump
 
 ### Description
 
-   getwin() reads window-related data previously stored in a file by
-   putwin(). It then creates and initialises a new window using that
-   data.
+   getwin() reads window-related data previously stored in a file
+   by putwin(). It then creates and initialises a new window using
+   that data.
 
-   putwin() writes all data associated with a window into a file, using
-   an unspecified format. This information can be retrieved later using
-   getwin().
+   putwin() writes all data associated with a window into a file,
+   using an unspecified format. This information can be retrieved
+   later using getwin().
 
-   scr_dump() writes the current contents of the virtual screen to the
-   file named by filename in an unspecified format.
+   scr_dump() writes the current contents of the virtual screen to
+   the file named by filename in an unspecified format.
 
-   scr_restore() function sets the virtual screen to the contents of the
-   file named by filename, which must have been written using
-   scr_dump(). The next refresh operation restores the screen to the way
-   it looked in the dump file.
+   scr_restore() function sets the virtual screen to the contents
+   of the file named by filename, which must have been written
+   using scr_dump(). The next refresh operation restores the screen
+   to the way it looked in the dump file.
 
-   In PDCurses, scr_init() does nothing, and scr_set() is a synonym for
-   scr_restore(). Also, scr_dump() and scr_restore() save and load from
-   curscr. This differs from some other implementations, where
-   scr_init() works with curscr, and scr_restore() works with newscr;
-   but the effect should be the same. (PDCurses has no newscr.)
+   In PDCurses, scr_init() does nothing, and scr_set() is a synonym
+   for scr_restore(). Also, scr_dump() and scr_restore() save and
+   load from curscr. This differs from some other implementations,
+   where scr_init() works with curscr, and scr_restore() works with
+   newscr; but the effect should be the same. (PDCurses has no
+   newscr.)
 
 ### Return Value
 
-   On successful completion, getwin() returns a pointer to the window it
-   created. Otherwise, it returns a null pointer. Other functions return
-   OK or ERR.
+   On successful completion, getwin() returns a pointer to the
+   window it created. Otherwise, it returns a null pointer. Other
+   functions return OK or ERR.
 
 ### Portability
-                             X/Open  ncurses  NetBSD
-    putwin                      Y       Y       Y
-    getwin                      Y       Y       Y
-    scr_dump                    Y       Y       -
-    scr_init                    Y       Y       -
-    scr_restore                 Y       Y       -
-    scr_set                     Y       Y       -
+                             X/Open    BSD    SYS V
+    putwin                      Y
+    getwin                      Y
+    scr_dump                    Y
+    scr_init                    Y
+    scr_restore                 Y
+    scr_set                     Y
 
 **man-end****************************************************************/
 
@@ -98,8 +99,7 @@ WINDOW *getwin(FILE *filep)
 
     PDC_LOG(("getwin() - called\n"));
 
-    win = malloc(sizeof(WINDOW));
-    if (!win)
+    if ( !(win = (WINDOW*)malloc(sizeof(WINDOW))) )
         return (WINDOW *)NULL;
 
     /* check for the marker, and load the WINDOW struct */
@@ -116,8 +116,7 @@ WINDOW *getwin(FILE *filep)
 
     /* allocate the line pointer array */
 
-    win->_y = malloc(nlines * sizeof(chtype *));
-    if (!win->_y)
+    if ( !(win->_y = (chtype**)malloc(nlines * sizeof(chtype *))) )
     {
         free(win);
         return (WINDOW *)NULL;
@@ -125,16 +124,14 @@ WINDOW *getwin(FILE *filep)
 
     /* allocate the minchng and maxchng arrays */
 
-    win->_firstch = malloc(nlines * sizeof(int));
-    if (!win->_firstch)
+    if ( !(win->_firstch = (int*)malloc(nlines * sizeof(int))) )
     {
         free(win->_y);
         free(win);
         return (WINDOW *)NULL;
     }
 
-    win->_lastch = malloc(nlines * sizeof(int));
-    if (!win->_lastch)
+    if ( !(win->_lastch = (int*)malloc(nlines * sizeof(int))) )
     {
         free(win->_firstch);
         free(win->_y);
@@ -144,8 +141,7 @@ WINDOW *getwin(FILE *filep)
 
     /* allocate the lines */
 
-    win = PDC_makelines(win);
-    if (!win)
+    if ( !(win = PDC_makelines(win)) )
         return (WINDOW *)NULL;
 
     /* read them */

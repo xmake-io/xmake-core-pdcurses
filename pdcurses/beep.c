@@ -1,4 +1,4 @@
-/* PDCurses */
+/* Public Domain Curses */
 
 #include <curspriv.h>
 
@@ -14,19 +14,19 @@ beep
 
 ### Description
 
-   beep() sounds the audible bell on the terminal, if possible; if not,
-   it calls flash().
+   beep() sounds the audible bell on the terminal, if possible;
+   if not, it calls flash().
 
    flash() "flashes" the screen, by inverting the foreground and
-   background of every cell, pausing, and then restoring the original
-   attributes.
+   background of every cell, pausing, and then restoring the
+   original attributes.
 
 ### Return Value
 
    These functions return OK.
 
 ### Portability
-                             X/Open  ncurses  NetBSD
+                             X/Open    BSD    SYS V
     beep                        Y       Y       Y
     flash                       Y       Y       Y
 

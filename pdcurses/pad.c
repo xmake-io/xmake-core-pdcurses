@@ -1,4 +1,4 @@
-/* PDCurses */
+/* Public Domain Curses */
 
 #include <curspriv.h>
 
@@ -11,65 +11,61 @@ pad
 
     WINDOW *newpad(int nlines, int ncols);
     WINDOW *subpad(WINDOW *orig, int nlines, int ncols,
-                   int begy, int begx);
+    int begy, int begx);
     int prefresh(WINDOW *win, int py, int px, int sy1, int sx1,
-                 int sy2, int sx2);
+    int sy2, int sx2);
     int pnoutrefresh(WINDOW *w, int py, int px, int sy1, int sx1,
-                     int sy2, int sx2);
+    int sy2, int sx2);
     int pechochar(WINDOW *pad, chtype ch);
     int pecho_wchar(WINDOW *pad, const cchar_t *wch);
 
-    bool is_pad(const WINDOW *pad);
-
 ### Description
 
-   A pad is a special kind of window, which is not restricted by the
-   screen size, and is not necessarily associated with a particular part
-   of the screen. You can use a pad when you need a large window, and
-   only a part of the window will be on the screen at one time. Pads are
-   not refreshed automatically (e.g., from scrolling or echoing of
-   input). You can't call wrefresh() with a pad as an argument; use
-   prefresh() or pnoutrefresh() instead. Note that these routines
-   require additional parameters to specify the part of the pad to be
-   displayed, and the location to use on the screen.
+   A pad is a special kind of window, which is not restricted by
+   the screen size, and is not necessarily associated with a
+   particular part of the screen.  You can use a pad when you need
+   a large window, and only a part of the window will be on the
+   screen at one time.  Pads are not refreshed automatically (e.g.,
+   from scrolling or echoing of input).  You can't call wrefresh()
+   with a pad as an argument; use prefresh() or pnoutrefresh()
+   instead.  Note that these routines require additional parameters
+   to specify the part of the pad to be displayed, and the location
+   to use on the screen.
 
    newpad() creates a new pad data structure.
 
    subpad() creates a new sub-pad within a pad, at position (begy,
    begx), with dimensions of nlines lines and ncols columns. This
    position is relative to the pad, and not to the screen as with
-   subwin. Changes to either the parent pad or sub-pad will affect both.
-   When using sub-pads, you may need to call touchwin() before calling
-   prefresh().
+   subwin.  Changes to either the parent pad or sub-pad will affect
+   both.  When using sub-pads, you may need to call touchwin()
+   before calling prefresh().
 
    pnoutrefresh() copies the specified pad to the virtual screen.
 
    prefresh() calls pnoutrefresh(), followed by doupdate().
 
-   These routines are analogous to wnoutrefresh() and wrefresh(). (py,
-   px) specifies the upper left corner of the part of the pad to be
-   displayed; (sy1, sx1) and (sy2, sx2) describe the screen rectangle
-   that will contain the selected part of the pad.
+   These routines are analogous to wnoutrefresh() and wrefresh().
+   (py, px) specifies the upper left corner of the part of the pad
+   to be displayed; (sy1, sx1) and (sy2, sx2) describe the screen
+   rectangle that will contain the selected part of the pad.
 
-   pechochar() is functionally equivalent to addch() followed by a call
-   to prefresh(), with the last-used coordinates and dimensions.
-   pecho_wchar() is the wide-character version.
-
-   is_pad() reports whether the specified window is a pad.
+   pechochar() is functionally equivalent to addch() followed by
+   a call to prefresh(), with the last-used coordinates and
+   dimensions. pecho_wchar() is the wide-character version.
 
 ### Return Value
 
-   All functions except is_pad() return OK on success and ERR on error.
+   All functions return OK on success and ERR on error.
 
 ### Portability
-                             X/Open  ncurses  NetBSD
-    newpad                      Y       Y       Y
-    subpad                      Y       Y       Y
-    prefresh                    Y       Y       Y
-    pnoutrefresh                Y       Y       Y
-    pechochar                   Y       Y       Y
-    pecho_wchar                 Y       Y       Y
-    is_pad                      -       Y       Y
+                             X/Open    BSD    SYS V
+    newpad                      Y       -       Y
+    subpad                      Y       -       Y
+    prefresh                    Y       -       Y
+    pnoutrefresh                Y       -       Y
+    pechochar                   Y       -      3.0
+    pecho_wchar                 Y
 
 **man-end****************************************************************/
 
@@ -86,18 +82,15 @@ WINDOW *newpad(int nlines, int ncols)
 
     PDC_LOG(("newpad() - called: lines=%d cols=%d\n", nlines, ncols));
 
-    win = PDC_makenew(nlines, ncols, 0, 0);
-    if (win)
-        win = PDC_makelines(win);
-
-    if (!win)
+    if ( !(win = PDC_makenew(nlines, ncols, 0, 0))
+        || !(win = PDC_makelines(win)) )
         return (WINDOW *)NULL;
 
     werase(win);
 
     win->_flags = _PAD;
 
-    /* save default values in case pechochar() is the first call to
+    /* save default values in case pechochar() is the first call to 
        prefresh(). */
 
     save_pminrow = 0;
@@ -114,6 +107,8 @@ WINDOW *subpad(WINDOW *orig, int nlines, int ncols, int begy, int begx)
 {
     WINDOW *win;
     int i;
+    int j = begy;
+    int k = begx;
 
     PDC_LOG(("subpad() - called: lines=%d cols=%d begy=%d begx=%d\n",
              nlines, ncols, begy, begx));
@@ -123,19 +118,18 @@ WINDOW *subpad(WINDOW *orig, int nlines, int ncols, int begy, int begx)
 
     /* make sure window fits inside the original one */
 
-    if (begy < 0 || begx < 0 ||
-        (begy + nlines) > orig->_maxy ||
-        (begx + ncols)  > orig->_maxx)
+    if ((begy < orig->_begy) || (begx < orig->_begx) ||
+        (begy + nlines) > (orig->_begy + orig->_maxy) ||
+        (begx + ncols)  > (orig->_begx + orig->_maxx))
         return (WINDOW *)NULL;
 
-    if (!nlines)
-        nlines = orig->_maxy - begy;
+    if (!nlines) 
+        nlines = orig->_maxy - 1 - j;
 
-    if (!ncols)
-        ncols = orig->_maxx - begx;
+    if (!ncols) 
+        ncols = orig->_maxx - 1 - k;
 
-    win = PDC_makenew(nlines, ncols, begy, begx);
-    if (!win)
+    if ( !(win = PDC_makenew(nlines, ncols, begy, begx)) )
         return (WINDOW *)NULL;
 
     /* initialize window variables */
@@ -148,7 +142,7 @@ WINDOW *subpad(WINDOW *orig, int nlines, int ncols, int begy, int begx)
     win->_parent = orig;
 
     for (i = 0; i < nlines; i++)
-        win->_y[i] = orig->_y[begy + i] + begx;
+        win->_y[i] = (orig->_y[j++]) + k;
 
     win->_flags = _SUBPAD;
 
@@ -208,7 +202,7 @@ int pnoutrefresh(WINDOW *w, int py, int px, int sy1, int sx1, int sy2, int sx2)
             memcpy(curscr->_y[sline] + sx1, w->_y[pline] + px,
                    num_cols * sizeof(chtype));
 
-            if ((curscr->_firstch[sline] == _NO_CHANGE)
+            if ((curscr->_firstch[sline] == _NO_CHANGE) 
                 || (curscr->_firstch[sline] > sx1))
                 curscr->_firstch[sline] = sx1;
 
@@ -229,8 +223,8 @@ int pnoutrefresh(WINDOW *w, int py, int px, int sy1, int sx1, int sy2, int sx2)
         curscr->_clear = TRUE;
     }
 
-    /* position the cursor to the pad's current position if possible --
-       is the pad current position going to end up displayed? if not,
+    /* position the cursor to the pad's current position if possible -- 
+       is the pad current position going to end up displayed? if not, 
        then don't move the cursor; if so, move it to the correct place */
 
     if (!w->_leaveit && w->_cury >= py && w->_curx >= px &&
@@ -250,7 +244,7 @@ int pechochar(WINDOW *pad, chtype ch)
     if (waddch(pad, ch) == ERR)
         return ERR;
 
-    return prefresh(pad, save_pminrow, save_pmincol, save_sminrow,
+    return prefresh(pad, save_pminrow, save_pmincol, save_sminrow, 
                     save_smincol, save_smaxrow, save_smaxcol);
 }
 
@@ -262,17 +256,7 @@ int pecho_wchar(WINDOW *pad, const cchar_t *wch)
     if (!wch || (waddch(pad, *wch) == ERR))
         return ERR;
 
-    return prefresh(pad, save_pminrow, save_pmincol, save_sminrow,
+    return prefresh(pad, save_pminrow, save_pmincol, save_sminrow, 
                     save_smincol, save_smaxrow, save_smaxcol);
 }
 #endif
-
-bool is_pad(const WINDOW *pad)
-{
-    PDC_LOG(("is_pad() - called\n"));
-
-    if (!pad)
-        return FALSE;
-
-    return (pad->_flags & _PAD) ? TRUE : FALSE;
-}
