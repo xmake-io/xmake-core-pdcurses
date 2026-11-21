@@ -427,6 +427,10 @@ int slk_attr_set(const attr_t attrs, short color_pair, void *opts)
 static void _slk_calc(void)
 {
     int i, center, col = 0;
+
+    if (labels <= 0)
+        return;
+
     label_length = COLS / labels;
 
     if (label_length > 31)
