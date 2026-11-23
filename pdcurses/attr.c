@@ -96,36 +96,38 @@ attr
    All functions return OK on success and ERR on error.
 
 ### Portability
-                             X/Open  ncurses  NetBSD
-    attroff                     Y       Y       Y
-    wattroff                    Y       Y       Y
-    attron                      Y       Y       Y
-    wattron                     Y       Y       Y
-    attrset                     Y       Y       Y
-    wattrset                    Y       Y       Y
-    standend                    Y       Y       Y
-    wstandend                   Y       Y       Y
-    standout                    Y       Y       Y
-    wstandout                   Y       Y       Y
-    color_set                   Y       Y       Y
-    wcolor_set                  Y       Y       Y
-    attr_get                    Y       Y       Y
-    wattr_get                   Y       Y       Y
-    attr_on                     Y       Y       Y
-    wattr_on                    Y       Y       Y
-    attr_off                    Y       Y       Y
-    wattr_off                   Y       Y       Y
-    attr_set                    Y       Y       Y
-    wattr_set                   Y       Y       Y
-    chgat                       Y       Y       Y
-    wchgat                      Y       Y       Y
-    mvchgat                     Y       Y       Y
-    mvwchgat                    Y       Y       Y
-    getattrs                    -       Y       Y
-    underend                    -       -       Y
-    wunderend                   -       -       Y
-    underscore                  -       -       Y
-    wunderscore                 -       -       Y
+
+   Function              | X/Open | ncurses | NetBSD
+   :---------------------|:------:|:-------:|:------:
+   attroff               |    Y   |    Y    |   Y
+   wattroff              |    Y   |    Y    |   Y
+   attron                |    Y   |    Y    |   Y
+   wattron               |    Y   |    Y    |   Y
+   attrset               |    Y   |    Y    |   Y
+   wattrset              |    Y   |    Y    |   Y
+   standend              |    Y   |    Y    |   Y
+   wstandend             |    Y   |    Y    |   Y
+   standout              |    Y   |    Y    |   Y
+   wstandout             |    Y   |    Y    |   Y
+   color_set             |    Y   |    Y    |   Y
+   wcolor_set            |    Y   |    Y    |   Y
+   attr_get              |    Y   |    Y    |   Y
+   wattr_get             |    Y   |    Y    |   Y
+   attr_on               |    Y   |    Y    |   Y
+   wattr_on              |    Y   |    Y    |   Y
+   attr_off              |    Y   |    Y    |   Y
+   wattr_off             |    Y   |    Y    |   Y
+   attr_set              |    Y   |    Y    |   Y
+   wattr_set             |    Y   |    Y    |   Y
+   chgat                 |    Y   |    Y    |   Y
+   wchgat                |    Y   |    Y    |   Y
+   mvchgat               |    Y   |    Y    |   Y
+   mvwchgat              |    Y   |    Y    |   Y
+   getattrs              |    -   |    Y    |   Y
+   underend              |    -   |    -    |   Y
+   wunderend             |    -   |    -    |   Y
+   underscore            |    -   |    -    |   Y
+   wunderscore           |    -   |    -    |   Y
 
 **man-end****************************************************************/
 
@@ -330,7 +332,7 @@ int wchgat(WINDOW *win, int n, attr_t attr, short color, const void *opts)
     if (!win)
         return ERR;
 
-    newattr = (attr & A_ATTRIBUTES) | COLOR_PAIR(color);
+    newattr = (attr & (A_ATTRIBUTES & ~A_COLOR)) | COLOR_PAIR(color);
 
     startpos = win->_curx;
     endpos = ((n < 0) ? win->_maxx : min(startpos + n, win->_maxx)) - 1;

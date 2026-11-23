@@ -24,14 +24,13 @@ clipboard
    memory returned, via PDC_freeclipboard(). The length of the clipboard
    contents is returned in the length argument.
 
-   PDC_setclipboard copies the supplied text into the system's
+   PDC_setclipboard() copies the supplied text into the system's
    clipboard, emptying the clipboard prior to the copy.
 
    PDC_clearclipboard() clears the internal clipboard.
 
 ### Return Values
 
-    indicator of success/failure of call.
     PDC_CLIP_SUCCESS        the call was successful
     PDC_CLIP_MEMORY_ERROR   unable to allocate sufficient memory for
                             the clipboard contents
@@ -39,11 +38,13 @@ clipboard
     PDC_CLIP_ACCESS_ERROR   no clipboard support
 
 ### Portability
-                             X/Open  ncurses  NetBSD
-    PDC_getclipboard            -       -       -
-    PDC_setclipboard            -       -       -
-    PDC_freeclipboard           -       -       -
-    PDC_clearclipboard          -       -       -
+
+   Function              | X/Open | ncurses | NetBSD
+   :---------------------|:------:|:-------:|:------:
+   PDC_getclipboard      |    -   |    -    |   -
+   PDC_setclipboard      |    -   |    -    |   -
+   PDC_freeclipboard     |    -   |    -    |   -
+   PDC_clearclipboard    |    -   |    -    |   -
 
 **man-end****************************************************************/
 

@@ -118,23 +118,25 @@ mouse
    current platform.
 
 ### Portability
-                             X/Open  ncurses  NetBSD
-    mouse_set                   -       -       -
-    mouse_on                    -       -       -
-    mouse_off                   -       -       -
-    request_mouse_pos           -       -       -
-    wmouse_position             -       -       -
-    getmouse                    -       *       -
-    mouseinterval               -       Y       -
-    wenclose                    -       Y       -
-    wmouse_trafo                -       Y       -
-    mouse_trafo                 -       Y       -
-    mousemask                   -       Y       -
-    nc_getmouse                 -       *       -
-    ungetmouse                  -       Y       -
-    has_mouse                   -       Y       -
 
-    * See above, under Description
+   Function              | X/Open | ncurses | NetBSD
+   :---------------------|:------:|:-------:|:------:
+   mouse_set             |    -   |    -    |   -
+   mouse_on              |    -   |    -    |   -
+   mouse_off             |    -   |    -    |   -
+   request_mouse_pos     |    -   |    -    |   -
+   wmouse_position       |    -   |    -    |   -
+   getmouse              |    -   |    *    |   -
+   mouseinterval         |    -   |    Y    |   -
+   wenclose              |    -   |    Y    |   -
+   wmouse_trafo          |    -   |    Y    |   -
+   mouse_trafo           |    -   |    Y    |   -
+   mousemask             |    -   |    Y    |   -
+   nc_getmouse           |    -   |    *    |   -
+   ungetmouse            |    -   |    Y    |   -
+   has_mouse             |    -   |    Y    |   -
+
+   \* See above, under Description
 
 **man-end****************************************************************/
 

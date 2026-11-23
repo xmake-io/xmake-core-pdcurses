@@ -880,6 +880,24 @@ void clipboardTest(WINDOW *win)
     }
 
     Continue2();
+
+    clear();
+    mvaddstr(1, 1,
+        "The clipboard will now be cleared");
+
+    i = PDC_clearclipboard();
+    switch(i)
+    {
+    case PDC_CLIP_ACCESS_ERROR:
+        mvaddstr(3, 1, "There was an error accessing the clipboard");
+        refresh();
+        break;
+
+    default:
+        mvaddstr(3, 1, "The clipboard was cleared successfully");
+    }
+
+    Continue2();
 }
 #endif /* HAVE_CLIPBOARD */
 
@@ -1260,8 +1278,8 @@ void colorTest(WINDOW *win)
         "COLOR_CYAN", "COLOR_MAGENTA", "COLOR_YELLOW", "COLOR_WHITE"
     };
 
-    chtype fill = ACS_BLOCK;
     bool widecol = (COLORS >= 16);
+    chtype fill = widecol ? ' ' : '@';
 
     int i, j, tmarg, col1, col2, col3;
 
@@ -1290,9 +1308,13 @@ void colorTest(WINDOW *win)
 
     for (i = 0; i < 8; i++)
     {
-        init_pair(i + 4, colors[i], COLOR_BLACK);
         if (widecol)
-            init_pair(i + 12, colors[i] + 8, COLOR_BLACK);
+        {
+            init_pair(i + 4, COLOR_BLACK, colors[i]);
+            init_pair(i + 12, COLOR_BLACK, colors[i] + 8);
+        }
+        else
+            init_pair(i + 4, colors[i], COLOR_BLACK);
 
         mvaddstr(tmarg + i + 5, col1, colornames[i]);
 
